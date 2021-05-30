@@ -1,4 +1,5 @@
 import moment, {Moment} from 'moment';
+import {simulationTime, getSimulationDuration} from './time';
 
 interface ResourceAllocation {
   quantity: number
@@ -8,7 +9,6 @@ interface ResourceAllocation {
 
 export class Resource {
   private id = 0
-  private creationTime = moment()
   private allocations: ResourceAllocation[] = []
 
   constructor(
@@ -24,7 +24,7 @@ export class Resource {
     if (canAllocate) {
       this.allocations.push({
         quantity,
-        time: moment(),
+        time: simulationTime.clone(),
         isAllocation: true,
       });
     }
@@ -38,7 +38,7 @@ export class Resource {
     } else {
       this.allocations.push({
         quantity,
-        time: moment(),
+        time: simulationTime.clone(),
         isAllocation: false,
       });
     }
@@ -55,10 +55,9 @@ export class Resource {
   }
 
   allocationRate() {
-    const currentTime = moment();
     const allocationsDuration = this.allocations
         .map(({time, isAllocation}) => {
-          const diff = currentTime.diff(time);
+          const diff = simulationTime.diff(time);
 
           return isAllocation ? diff : -diff;
         })
@@ -66,7 +65,7 @@ export class Resource {
 
     const allocationSeconds = moment.duration(allocationsDuration).seconds();
 
-    return allocationSeconds / this.getSimulationDuration(currentTime);
+    return allocationSeconds / getSimulationDuration().seconds();
   }
 
   averageAllocation() {
@@ -75,11 +74,7 @@ export class Resource {
         .map(({quantity}) => quantity)
         .reduce((p, c) => p + c, 0);
 
-    return allocationsSinceCreation / this.getSimulationDuration();
-  }
-
-  private getSimulationDuration(time = moment()) {
-    return moment.duration(time.diff(this.creationTime)).seconds();
+    return allocationsSinceCreation / getSimulationDuration().seconds();
   }
 }
 
