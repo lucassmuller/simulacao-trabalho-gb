@@ -42,10 +42,29 @@ export class EntitySet {
     }
   }
 
-  remove = () => this.set.pop(); // TODO: remove by mode
+  remove() {
+    switch (this.mode) {
+      case EntitySetMode.LIFO:
+        return this.set.pop();
+      case EntitySetMode.FIFO:
+        return this.set.shift();
+      case EntitySetMode.Priority:
+        return this.set.slice().sort((a, b) => b.getPriority() - a.getPriority()).pop();
+      default:
+        return this.removeByIndex(this.getRandomSetIndex());
+    }
+  }
+
+  private getRandomSetIndex() {
+    return Math.floor(Math.random() * this.getSize());
+  }
 
   removeById(entityId: number) {
     const index = this.set.findIndex((entity) => entity.getId() === entityId);
+    return this.removeByIndex(index);
+  }
+
+  private removeByIndex(index: number) {
     return this.set.slice(index, 1)[0];
   }
 
