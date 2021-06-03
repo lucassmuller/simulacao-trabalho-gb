@@ -1,5 +1,5 @@
 import moment, {Moment} from 'moment';
-import {simulationTime, getSimulationDuration} from './time';
+import {getSimulationTime, getSimulationDuration} from './time';
 
 interface ResourceAllocation {
   quantity: number
@@ -8,7 +8,7 @@ interface ResourceAllocation {
 }
 
 export class Resource {
-  private id = 0
+  private id = Math.random()
   private allocations: ResourceAllocation[] = []
 
   constructor(
@@ -16,15 +16,16 @@ export class Resource {
     private quantity: number = 1,
   ) { }
 
-  getName = () => this.name
+  getId = () => this.id;
+  getName = () => this.name;
 
-  allocate(quantity: number) {
+  allocate(quantity: number = 1) {
     const canAllocate = quantity <= this.getFreeQuantity();
 
     if (canAllocate) {
       this.allocations.push({
         quantity,
-        time: simulationTime.clone(),
+        time: getSimulationTime(),
         isAllocation: true,
       });
     }
@@ -32,16 +33,20 @@ export class Resource {
     return canAllocate;
   }
 
-  release(quantity: number) {
+  release(quantity: number = 1) {
     if (quantity > this.getAllocatedQuantity()) {
       throw new Error('The release quantity is greater than the allocated quantity.');
     } else {
       this.allocations.push({
         quantity,
-        time: simulationTime.clone(),
+        time: getSimulationTime(),
         isAllocation: false,
       });
     }
+  }
+
+  isAvailable() {
+    return this.getFreeQuantity() > 0;
   }
 
   getFreeQuantity() {
@@ -57,15 +62,15 @@ export class Resource {
   allocationRate() {
     const allocationsDuration = this.allocations
         .map(({time, isAllocation}) => {
-          const diff = simulationTime.diff(time);
+          const diff = getSimulationTime().diff(time);
 
           return isAllocation ? diff : -diff;
         })
         .reduce((p, c) => p + c, 0);
 
-    const allocationSeconds = moment.duration(allocationsDuration).seconds();
+    const allocationSeconds = moment.duration(allocationsDuration).asSeconds();
 
-    return allocationSeconds / getSimulationDuration().seconds();
+    return allocationSeconds / getSimulationDuration().asSeconds();
   }
 
   averageAllocation() {
@@ -74,7 +79,7 @@ export class Resource {
         .map(({quantity}) => quantity)
         .reduce((p, c) => p + c, 0);
 
-    return allocationsSinceCreation / getSimulationDuration().seconds();
+    return allocationsSinceCreation / getSimulationDuration().asSeconds();
   }
 }
 

@@ -1,7 +1,7 @@
 import {Duration} from 'moment';
 
 export class Process {
-  private id = 0
+  private id = Math.random()
   private active = true
 
   constructor(

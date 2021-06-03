@@ -9,9 +9,9 @@ export enum EntitySetMode {
   Priority,
 }
 
-export class EntitySet {
-  private id = 0
-  private set: Entity[] = []
+export class EntitySet<T extends Entity = Entity> {
+  private id = Math.random()
+  private set: T[] = []
 
   constructor(
     private name: string,
@@ -19,22 +19,24 @@ export class EntitySet {
     private maxSize = 0,
   ) { }
 
+  getId = () => this.id;
   getName = () => this.name;
 
-  getMode = () => this.mode
-  setMode = (mode?: EntitySetMode) => this.mode = mode
+  getMode = () => this.mode;
+  setMode = (mode?: EntitySetMode) => this.mode = mode;
 
-  getSize = () => this.set.length
-  isEmpty = () => this.getSize() === 0
+  getSize = () => this.set.length;
+  isEmpty = () => this.getSize() === 0;
+  isNotEmpty = () => !this.isEmpty();
 
-  getMaxSize = () => this.maxSize
-  setMaxSize = (maxSize: number) => this.maxSize = maxSize
+  getMaxSize = () => this.maxSize;
+  setMaxSize = (maxSize: number) => this.maxSize = maxSize;
 
   findEntity(entityId: number) {
     return this.set.find((entity) => entity.getId() === entityId);
   }
 
-  insert(entity: Entity) {
+  insert(entity: T) {
     if (this.getMaxSize() === 0 || this.getSize() < this.getMaxSize()) {
       this.set.push(entity);
     } else {
@@ -43,6 +45,10 @@ export class EntitySet {
   }
 
   remove() {
+    if (this.isEmpty()) {
+      return undefined;
+    }
+
     switch (this.mode) {
       case EntitySetMode.LIFO:
         return this.set.pop();
