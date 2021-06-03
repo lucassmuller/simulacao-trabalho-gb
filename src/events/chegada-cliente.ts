@@ -2,7 +2,7 @@ import moment from 'moment';
 import {atendentes1, atendentes2, caixa1Queue, caixa2Queue, scheduler} from '..';
 import Event from '../api/event';
 import {getSimulationDuration} from '../api/time';
-import GrupoClientes from '../entities/grupo-clientes';
+import GrupoClientesEntity from '../entities/grupo-clientes';
 import {AtenderCaixa1Event, AtenderCaixa2Event} from './atender-caixa';
 
 export class ChegadaClienteEvent extends Event {
@@ -11,7 +11,7 @@ export class ChegadaClienteEvent extends Event {
   }
 
   execute() {
-    const cliente = new GrupoClientes();
+    const cliente = new GrupoClientesEntity();
 
     if (atendentes1.isAvailable()) {
       scheduler.scheduleNow(new AtenderCaixa1Event(cliente));
@@ -24,7 +24,7 @@ export class ChegadaClienteEvent extends Event {
     }
 
     // Gera chegada de novos clientes
-    if (getSimulationDuration().asSeconds() < 200) {
+    if (getSimulationDuration().asSeconds() < 300) {
       scheduler.scheduleIn(new ChegadaClienteEvent(), moment.duration(5, 'seconds'));
     }
   }

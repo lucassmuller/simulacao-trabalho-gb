@@ -1,13 +1,13 @@
 import {scheduler} from '..';
 import Entity from '../api/entity';
 
-export const GRUPO_CLIENTS_NAME = 'GrupoClientes';
+export const GRUPO_CLIENTS_NAME = 'GrupoClientesEntity';
 
-export class GrupoClientes extends Entity {
+export class GrupoClientesEntity extends Entity {
   constructor() {
     super(GRUPO_CLIENTS_NAME);
     scheduler.logEntityCreation(this);
   }
 }
 
-export default GrupoClientes;
+export default GrupoClientesEntity;

@@ -1,11 +1,9 @@
 import Event from '../api/event';
-import GrupoClientes from '../entities/grupo-clientes';
+import GrupoClientesEntity from '../entities/grupo-clientes';
 
 // Envia cliente para mesa ou adiciona a fila se não houver lugar
 export class RotearMesaEvent extends Event {
-  constructor(
-    private cliente: GrupoClientes,
-  ) {
+  constructor(private cliente: GrupoClientesEntity) {
     super('RotearMesaEvent');
   }
 
