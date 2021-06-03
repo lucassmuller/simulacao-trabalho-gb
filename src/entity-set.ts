@@ -35,7 +35,7 @@ export class EntitySet {
   }
 
   insert(entity: Entity) {
-    if (this.getSize() < this.getMaxSize()) {
+    if (this.getMaxSize() === 0 || this.getSize() < this.getMaxSize()) {
       this.set.push(entity);
     } else {
       throw new Error('Max possible size reached.');
