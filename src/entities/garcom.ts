@@ -1,15 +1,59 @@
+import {scheduler} from '..';
 import Entity from '../api/entity';
 import PetriNet from '../api/petri-net';
 import {Places, Transitions} from '../api/petri-net/definitions';
 
+export enum GarcomState {
+  // eslint-disable-next-line no-unused-vars
+  AVAILABLE = 'livre',
+  // eslint-disable-next-line no-unused-vars
+  REPLACING_CASHIER = 'no-caixa',
+  // eslint-disable-next-line no-unused-vars
+  DELIVERING_ORDER = 'levando-pedido',
+  // eslint-disable-next-line no-unused-vars
+  CLEANING_TABLE = 'higienizando-mesa'
+}
+
+export const GARCOM_NAME = 'GarcomEntity';
+
 export class GarcomEntity extends Entity {
+  private petriNet = buildPetriNet();
+
   constructor() {
-    super('GarcomEntity', buildPetriNet());
+    super(GARCOM_NAME);
+    scheduler.logEntityCreation(this);
   }
 
-  isAvailable() {
-    const place = this.getPetriNet()?.getPlaceById('livre');
-    return place?.tokens === 1;
+  getPetriNet = () => this.petriNet;
+
+  isAvailable = () => this.getCurrentState() === GarcomState.AVAILABLE;
+
+  getCurrentState() {
+    const placeHasTokens = (placeId: string) => this.getPetriNet().getPlaceById(placeId).tokens > 0;
+
+    return Object.keys(GarcomState)
+        .map((key) => GarcomState[key])
+        .find((state) => placeHasTokens(state));
+  }
+
+  replaceCashier = () => this.doWork('substituir-caixa');
+  cashierBack = () => this.doWork('caixa-retorno', GarcomState.REPLACING_CASHIER);
+
+  deliverOrder = () => this.doWork('pedido-pronto');
+  orderDelivered = () => this.doWork('pedido-na-mesa', GarcomState.DELIVERING_ORDER);
+
+  cleanTable = () => this.doWork('cliente-vai-sentar');
+  tableCleaned = () => this.doWork('mesa-higienizada', GarcomState.CLEANING_TABLE);
+
+  private doWork(placeId: string, expectedState = GarcomState.AVAILABLE) {
+    const isExpectedState = this.getCurrentState() === expectedState;
+
+    if (isExpectedState) {
+      this.getPetriNet().getPlaceById(placeId).tokens = 1;
+      this.getPetriNet().executeCycle();
+    }
+
+    return isExpectedState;
   }
 }
 

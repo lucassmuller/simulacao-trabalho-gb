@@ -1,5 +1,4 @@
 import moment from 'moment';
-import PetriNet from './petri-net';
 import {getSimulationTime} from './time';
 
 export class Entity {
@@ -9,7 +8,6 @@ export class Entity {
 
   constructor(
     private name: string,
-    private petriNet?: PetriNet,
   ) { }
 
   getId = () => this.id
@@ -17,9 +15,6 @@ export class Entity {
 
   getPriority = () => this.priority
   setPriority = (priority: number) => this.priority = priority
-
-  getPetriNet = () => this.petriNet
-  setPetriNet = (petriNet: PetriNet) => this.petriNet = petriNet
 
   getTimeSinceCreation = () => moment.duration(getSimulationTime().diff(this.creationTime))
 }
