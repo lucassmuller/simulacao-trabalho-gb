@@ -2,6 +2,7 @@ import EntitySet, {EntitySetMode} from './api/entity-set';
 import Resource from './api/resource';
 import Scheduler from './api/scheduler';
 import {getSimulationDuration} from './api/time';
+import GarcomEntity from './entities/garcom';
 import GrupoClientesEntity, {GRUPO_CLIENTS_NAME} from './entities/grupo-clientes';
 import PedidoEntity, {PEDIDO_NAME} from './entities/pedido';
 import ChegadaClienteEvent from './events/chegada-cliente';
@@ -19,11 +20,15 @@ export const cozinhaQueue = new EntitySet<PedidoEntity>('CozinheirosQueue', Enti
 export const pedidosProntosQueue = new EntitySet<PedidoEntity>(
     'PedidosProntosQueue', EntitySetMode.FIFO);
 
+export const garcons = Array(3).fill(undefined).map(() => new GarcomEntity());
+
 scheduler.scheduleNow(new ChegadaClienteEvent());
 scheduler.simulate();
 
 console.log('Simulation duration:', getSimulationDuration().asSeconds(), 'seconds');
 console.log('Clientes atendidos:', scheduler.getEntityTotalQuantityByName(GRUPO_CLIENTS_NAME));
 console.log('Pedidos atendidos:', scheduler.getEntityTotalQuantityByName(PEDIDO_NAME));
+console.log('Clientes average', scheduler.averageTimeInModelByName(GRUPO_CLIENTS_NAME).asSeconds());
+console.log('Pedidos average', scheduler.averageTimeInModelByName(PEDIDO_NAME).asSeconds());
 console.log('Atendentes allocation rate:', atendentes1.allocationRate());
 console.log('Atendentes average allocation:', atendentes1.averageAllocation());

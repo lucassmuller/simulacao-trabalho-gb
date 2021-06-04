@@ -24,7 +24,7 @@ export class ChegadaClienteEvent extends Event {
     }
 
     // Gera chegada de novos clientes
-    if (getSimulationDuration().asSeconds() < 300) {
+    if (getSimulationDuration().asSeconds() < 200) {
       scheduler.scheduleIn(new ChegadaClienteEvent(), moment.duration(5, 'seconds'));
     }
   }

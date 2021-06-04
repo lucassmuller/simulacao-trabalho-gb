@@ -1,7 +1,8 @@
-import {cozinhaQueue, cozinheiros, pedidosProntosQueue, scheduler} from '..';
+import {cozinhaQueue, cozinheiros, scheduler} from '..';
 import Event from '../api/event';
 import PedidoEntity from '../entities/pedido';
 import CozinharPedidoEvent from './cozinhar-pedido';
+import PedidoProntoEvent from './pedido-pronto';
 
 export class FinalizarPedidoEvent extends Event {
   constructor(private pedido: PedidoEntity) {
@@ -10,10 +11,7 @@ export class FinalizarPedidoEvent extends Event {
 
   execute() {
     cozinheiros.release();
-
-    console.log('Pedido pronto!', this.pedido.getId());
-    pedidosProntosQueue.insert(this.pedido);
-    // Adicionar fluxo de entregar pedido
+    scheduler.scheduleNow(new PedidoProntoEvent(this.pedido));
 
     if (cozinhaQueue.isNotEmpty()) {
       console.log('Atendendo pedido na fila:', cozinhaQueue.getSize());

@@ -9,9 +9,11 @@ interface ScheduledEvent {
 }
 
 type EntityLog = {[name: string]: number}
+type EntityDurationLog = {[name: string]: moment.Duration[]}
 
 export class Scheduler {
   private entityLog: EntityLog = {}
+  private entityDurationLog: EntityDurationLog = {}
   private events: ScheduledEvent[] = []
 
   // Event scheduling
@@ -79,6 +81,11 @@ export class Scheduler {
     this.entityLog[entity.getName()] = amount + 1;
   }
 
+  logEntityDestruction(entity: Entity) {
+    this.entityDurationLog[entity.getName()] = this.entityDurationLog[entity.getName()] || [];
+    this.entityDurationLog[entity.getName()].push(entity.getTimeSinceCreation());
+  }
+
   getEntityTotalQuantity() {
     return Object.keys(this.entityLog)
         .map((key) => this.entityLog[key])
@@ -87,6 +94,14 @@ export class Scheduler {
 
   getEntityTotalQuantityByName(name: string) {
     return this.entityLog[name] || 0;
+  }
+
+  averageTimeInModelByName(name: string) {
+    const durationLogs = this.entityDurationLog[name];
+    const durationsSum = durationLogs
+        .map((duration) => duration.asMilliseconds())
+        .reduce((p, c) => p + c, 0);
+    return moment.duration(durationsSum / durationLogs.length, 'milliseconds');
   }
 }
 

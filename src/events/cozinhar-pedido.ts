@@ -9,7 +9,7 @@ export class CozinharPedidoEvent extends Event {
     super('CozinharPedidoEvent');
   }
 
-  execute(): void {
+  execute() {
     if (cozinheiros.isAvailable()) {
       cozinheiros.allocate();
       scheduler.scheduleIn(new FinalizarPedidoEvent(this.pedido), moment.duration(20, 'seconds'));

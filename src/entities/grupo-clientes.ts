@@ -8,6 +8,10 @@ export class GrupoClientesEntity extends Entity {
     super(GRUPO_CLIENTS_NAME);
     scheduler.logEntityCreation(this);
   }
+
+  destroy() {
+    scheduler.logEntityDestruction(this);
+  }
 }
 
 export default GrupoClientesEntity;

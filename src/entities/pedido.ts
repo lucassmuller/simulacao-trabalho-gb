@@ -11,6 +11,10 @@ export class PedidoEntity extends Entity {
   }
 
   getCliente = () => this.cliente;
+
+  destroy() {
+    scheduler.logEntityDestruction(this);
+  }
 }
 
 export default PedidoEntity;
