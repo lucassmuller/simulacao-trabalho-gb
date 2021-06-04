@@ -6,6 +6,7 @@ import {getSimulationTime, setSimulationTime} from './time';
 interface ScheduledEvent {
   time: moment.Moment;
   event: Event;
+  logEvent: boolean;
 }
 
 type EntityLog = {[name: string]: number}
@@ -17,22 +18,25 @@ export class Scheduler {
   private entityDurationLog: EntityDurationLog = {}
   private events: ScheduledEvent[] = []
 
+  getTime = () => getSimulationTime();
+
   // Event scheduling
 
-  scheduleNow(event: Event) {
-    this.scheduleAt(event, getSimulationTime());
+  scheduleNow(event: Event, logEvent = false) {
+    this.scheduleAt(event, getSimulationTime(), logEvent);
   }
 
-  scheduleIn(event: Event, timeToEvent: moment.Duration) {
-    this.scheduleAt(event, getSimulationTime().add(timeToEvent));
+  scheduleIn(event: Event, timeToEvent: moment.Duration, logEvent = false) {
+    this.scheduleAt(event, getSimulationTime().add(timeToEvent), logEvent);
   }
 
-  scheduleAt(event: Event, absoluteTime: moment.Moment) {
+  scheduleAt(event: Event, absoluteTime: moment.Moment, logEvent = false) {
     console.log('Event', event.getName(), '(', event.getId(), ') scheduled at',
         moment.duration(absoluteTime.diff(this.creationTime)).asSeconds());
 
     this.events.push({
       event,
+      logEvent,
       time: absoluteTime.clone(),
     });
   }
@@ -50,7 +54,7 @@ export class Scheduler {
   }
 
   simulateUntil(absoluteTime: moment.Moment) {
-    while (this.hasEvents() && getSimulationTime() <= absoluteTime) {
+    while (this.hasEvents() && getSimulationTime() < absoluteTime) {
       this.simulateOneStep(absoluteTime);
     }
   }
@@ -66,6 +70,8 @@ export class Scheduler {
     }
 
     if (limit && nextEvent.time > limit) {
+      // Add to events list in case the simulation runs again
+      this.events.push(nextEvent);
       return;
     }
 
@@ -74,7 +80,7 @@ export class Scheduler {
     nextEvent.event.execute();
   }
 
-  hasEvents = () => this.events.length > 0;
+  hasEvents = () => !!this.events.find((e) => !e.logEvent)
 
   // Statistics
 

@@ -1,4 +1,4 @@
-// import moment from 'moment';
+import moment from 'moment';
 import EntitySet, {EntitySetMode} from './api/entity-set';
 import Resource from './api/resource';
 import Scheduler from './api/scheduler';
@@ -37,6 +37,8 @@ export const garcons = Array(3).fill(undefined).map(() => new GarcomEntity());
 scheduler.scheduleNow(new ChegadaClienteEvent());
 // scheduler.scheduleIn(new IntervaloCaixaEvent(atendentes1), moment.duration(10, 'seconds'));
 // scheduler.scheduleIn(new IntervaloCaixaEvent(atendentes2), moment.duration(30, 'seconds'));
+caixa1Queue.startLog(moment.duration(10, 'seconds'), scheduler, 10);
+caixa2Queue.startLog(moment.duration(10, 'seconds'), scheduler, 10);
 scheduler.simulate();
 
 console.log('Simulation duration:', getSimulationDuration().asSeconds(), 'seconds');
@@ -46,3 +48,5 @@ console.log('Clientes average', scheduler.averageTimeInModelByName(GRUPO_CLIENTS
 console.log('Pedidos average', scheduler.averageTimeInModelByName(PEDIDO_NAME).asSeconds());
 console.log('Atendentes allocation rate:', atendentes1.allocationRate());
 console.log('Atendentes average allocation:', atendentes1.averageAllocation());
+console.log('Caixa 1 logs:', caixa1Queue.getLog());
+console.log('Caixa 2 logs:', caixa2Queue.getLog());

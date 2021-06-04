@@ -1,4 +1,7 @@
+import moment from 'moment';
 import Entity from './entity';
+import Event from './event';
+import Scheduler from './scheduler';
 
 export enum EntitySetMode {
   // eslint-disable-next-line no-unused-vars
@@ -9,9 +12,16 @@ export enum EntitySetMode {
   Priority,
 }
 
+interface EntitySetLog {
+  time: moment.Moment;
+  size: number;
+}
+
 export class EntitySet<T extends Entity = Entity> {
   private id = Math.random()
   private set: T[] = []
+  private logs: EntitySetLog[] = []
+  private keepLogging = true
 
   constructor(
     private name: string,
@@ -78,9 +88,41 @@ export class EntitySet<T extends Entity = Entity> {
   averageSize = () => null
   averageTimeInSet = () => null
   maxTimeInSet = () => null
-  startLog = () => null
-  stopLog = () => null
-  getLog = () => null
+
+  getLog = () => this.logs;
+
+  startLog(timeGap: moment.Duration, scheduler: Scheduler, logLimit = 0) {
+    this.keepLogging = true;
+    const entitySet = this;
+    const logEvent = new class extends Event {
+      constructor() {
+        super('EntitySetLogEvent');
+      }
+
+      execute() {
+        if (!entitySet.keepLogging) {
+          return;
+        }
+
+        if (logLimit > 0 && entitySet.logs.length >= logLimit) {
+          return;
+        }
+
+        entitySet.logs.push({
+          time: scheduler.getTime(),
+          size: entitySet.getSize(),
+        });
+
+        if (scheduler.hasEvents()) {
+          scheduler.scheduleIn(logEvent, timeGap, true);
+        }
+      }
+    };
+
+    scheduler.scheduleNow(logEvent, true);
+  }
+
+  stopLog = () => this.keepLogging = false
 }
 
 export default EntitySet;
