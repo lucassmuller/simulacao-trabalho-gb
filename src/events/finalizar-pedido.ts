@@ -15,10 +15,7 @@ export class FinalizarPedidoEvent extends Event {
 
     if (cozinhaQueue.isNotEmpty()) {
       console.log('Atendendo pedido na fila:', cozinhaQueue.getSize());
-      const proximoPedido = cozinhaQueue.remove();
-      if (proximoPedido) {
-        scheduler.scheduleNow(new CozinharPedidoEvent(proximoPedido));
-      }
+      scheduler.scheduleNow(new CozinharPedidoEvent(cozinhaQueue.remove()!));
     }
   }
 }

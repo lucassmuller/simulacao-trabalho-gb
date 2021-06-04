@@ -1,15 +1,21 @@
+import {scheduler} from '..';
 import Event from '../api/event';
 import GrupoClientesEntity from '../entities/grupo-clientes';
+import {EntrarFilaBalcaoEvent, EntrarFilaMesa2Event, EntrarFilaMesa4Event} from './fila-mesa';
 
-// Envia cliente para mesa ou adiciona a fila se não houver lugar
 export class RotearMesaEvent extends Event {
   constructor(private cliente: GrupoClientesEntity) {
     super('RotearMesaEvent');
   }
 
   execute() {
-    console.log('Atendimento de cliente finalizado!',
-        this.cliente.getTimeSinceCreation().asSeconds());
+    if (this.cliente.getSize() === 1) {
+      scheduler.scheduleNow(new EntrarFilaBalcaoEvent(this.cliente));
+    } else if (this.cliente.getSize() === 2) {
+      scheduler.scheduleNow(new EntrarFilaMesa2Event(this.cliente));
+    } else if (this.cliente.getSize() > 2) {
+      scheduler.scheduleNow(new EntrarFilaMesa4Event(this.cliente));
+    }
   }
 }
 

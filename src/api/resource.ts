@@ -34,9 +34,7 @@ export class Resource {
   }
 
   release(quantity: number = 1) {
-    if (quantity > this.getAllocatedQuantity()) {
-      throw new Error('The release quantity is greater than the allocated quantity.');
-    } else {
+    if (quantity <= this.getAllocatedQuantity()) {
       this.allocations.push({
         quantity,
         time: getSimulationTime(),

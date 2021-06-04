@@ -12,6 +12,7 @@ type EntityLog = {[name: string]: number}
 type EntityDurationLog = {[name: string]: moment.Duration[]}
 
 export class Scheduler {
+  private creationTime = getSimulationTime()
   private entityLog: EntityLog = {}
   private entityDurationLog: EntityDurationLog = {}
   private events: ScheduledEvent[] = []
@@ -27,7 +28,8 @@ export class Scheduler {
   }
 
   scheduleAt(event: Event, absoluteTime: moment.Moment) {
-    console.log('Event', event.getName(), 'scheduled at', absoluteTime.format('mm:ss'));
+    console.log('Event', event.getName(), '(', event.getId(), ') scheduled at',
+        moment.duration(absoluteTime.diff(this.creationTime)).asSeconds());
 
     this.events.push({
       event,
@@ -68,7 +70,7 @@ export class Scheduler {
     }
 
     setSimulationTime(nextEvent.time);
-    console.log('Executing event', nextEvent.event.getName());
+    console.log('Executing event', nextEvent.event.getName(), '(', nextEvent.event.getId(), ')');
     nextEvent.event.execute();
   }
 
@@ -97,7 +99,7 @@ export class Scheduler {
   }
 
   averageTimeInModelByName(name: string) {
-    const durationLogs = this.entityDurationLog[name];
+    const durationLogs = this.entityDurationLog[name] || [];
     const durationsSum = durationLogs
         .map((duration) => duration.asMilliseconds())
         .reduce((p, c) => p + c, 0);

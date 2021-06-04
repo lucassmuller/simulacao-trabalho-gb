@@ -43,10 +43,7 @@ export class FinalizarCaixa2Event extends Event {
 
     if (caixa2Queue.isNotEmpty()) {
       console.log('Atendendo cliente da fila:', caixa2Queue.getSize());
-      const proximoCliente = caixa2Queue.remove();
-      if (proximoCliente) {
-        scheduler.scheduleNow(new AtenderCaixa2Event(proximoCliente));
-      }
+      scheduler.scheduleNow(new AtenderCaixa2Event(caixa2Queue.remove()!));
     }
   }
 }

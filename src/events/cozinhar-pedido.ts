@@ -12,7 +12,7 @@ export class CozinharPedidoEvent extends Event {
   execute() {
     if (cozinheiros.isAvailable()) {
       cozinheiros.allocate();
-      scheduler.scheduleIn(new FinalizarPedidoEvent(this.pedido), moment.duration(20, 'seconds'));
+      scheduler.scheduleIn(new FinalizarPedidoEvent(this.pedido), moment.duration(40, 'seconds'));
     } else {
       cozinhaQueue.insert(this.pedido);
     }
