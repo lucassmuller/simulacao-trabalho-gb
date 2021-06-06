@@ -32,7 +32,7 @@ export class Scheduler {
 
   scheduleAt(event: Event, absoluteTime: moment.Moment, logEvent = false) {
     console.log('Event', event.getName(), '(', event.getId(), ') scheduled at',
-        moment.duration(absoluteTime.diff(this.creationTime)).asSeconds());
+        moment.duration(absoluteTime.diff(this.creationTime)).asMinutes(), 'minutes');
 
     this.events.push({
       event,
@@ -54,8 +54,12 @@ export class Scheduler {
   }
 
   simulateUntil(absoluteTime: moment.Moment) {
-    while (this.hasEvents() && getSimulationTime() < absoluteTime) {
-      this.simulateOneStep(absoluteTime);
+    while (this.hasEvents()) {
+      if (getSimulationTime() >= absoluteTime) {
+        break;
+      } else {
+        this.simulateOneStep();
+      }
     }
   }
 

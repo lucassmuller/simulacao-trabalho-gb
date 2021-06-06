@@ -6,7 +6,7 @@ import {getSimulationDuration} from './api/time';
 import GarcomEntity from './entities/garcom';
 import GrupoClientesEntity, {GRUPO_CLIENTS_NAME} from './entities/grupo-clientes';
 import PedidoEntity, {PEDIDO_NAME} from './entities/pedido';
-import ChegadaClienteEvent from './events/chegada-cliente';
+import GeraChegadaClienteEvent from './events/gera-cliente';
 // import {IntervaloCaixaEvent} from './events/intervalo-caixa';
 
 export const scheduler = new Scheduler();
@@ -34,18 +34,19 @@ export const pedidosProntosQueue = new EntitySet<PedidoEntity>(
 
 export const garcons = Array(3).fill(undefined).map(() => new GarcomEntity());
 
-scheduler.scheduleNow(new ChegadaClienteEvent());
+scheduler.scheduleNow(new GeraChegadaClienteEvent());
 // scheduler.scheduleIn(new IntervaloCaixaEvent(atendentes1), moment.duration(10, 'seconds'));
 // scheduler.scheduleIn(new IntervaloCaixaEvent(atendentes2), moment.duration(30, 'seconds'));
-caixa1Queue.startLog(moment.duration(10, 'seconds'), scheduler, 10);
-caixa2Queue.startLog(moment.duration(10, 'seconds'), scheduler, 10);
+caixa1Queue.startLog(moment.duration(1, 'minute'), scheduler, 30);
+caixa2Queue.startLog(moment.duration(1, 'minute'), scheduler, 30);
+// scheduler.simulateBy(moment.duration(30, 'minutes'));
 scheduler.simulate();
 
-console.log('Simulation duration:', getSimulationDuration().asSeconds(), 'seconds');
-console.log('Clientes atendidos:', scheduler.getEntityTotalQuantityByName(GRUPO_CLIENTS_NAME));
-console.log('Pedidos atendidos:', scheduler.getEntityTotalQuantityByName(PEDIDO_NAME));
-console.log('Clientes average', scheduler.averageTimeInModelByName(GRUPO_CLIENTS_NAME).asSeconds());
-console.log('Pedidos average', scheduler.averageTimeInModelByName(PEDIDO_NAME).asSeconds());
+console.log('Simulation duration:', getSimulationDuration().asHours(), 'hours');
+console.log('Clientes count:', scheduler.getEntityTotalQuantityByName(GRUPO_CLIENTS_NAME));
+console.log('Pedidos count:', scheduler.getEntityTotalQuantityByName(PEDIDO_NAME));
+console.log('Clientes average', scheduler.averageTimeInModelByName(GRUPO_CLIENTS_NAME).asMinutes());
+console.log('Pedidos average', scheduler.averageTimeInModelByName(PEDIDO_NAME).asMinutes());
 console.log('Atendentes allocation rate:', atendentes1.allocationRate());
 console.log('Atendentes average allocation:', atendentes1.averageAllocation());
 console.log('Caixa 1 logs:', caixa1Queue.getLog());
