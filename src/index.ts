@@ -7,9 +7,9 @@ import GarcomEntity from './entities/garcom';
 import GrupoClientesEntity, {GRUPO_CLIENTS_NAME} from './entities/grupo-clientes';
 import PedidoEntity, {PEDIDO_NAME} from './entities/pedido';
 import GeraChegadaClienteEvent from './events/gera-cliente';
-// import {IntervaloCaixaEvent} from './events/intervalo-caixa';
 
 export const scheduler = new Scheduler();
+export const MAIN_MODEL_UNIT = 'minutes';
 
 export const atendentes1 = new Resource('AtendentesCaixa1', 1);
 export const caixa1Queue = new EntitySet<GrupoClientesEntity>('Caixa1Queue', EntitySetMode.FIFO);
@@ -27,7 +27,7 @@ export const mesas2Queue = new EntitySet<GrupoClientesEntity>('Mesas2Queue', Ent
 export const mesas4 = new Resource('Mesas4', 4);
 export const mesas4Queue = new EntitySet<GrupoClientesEntity>('Mesas4Queue', EntitySetMode.FIFO);
 
-export const cozinheiros = new Resource('Cozinheiros', 3);
+export const cozinheiros = new Resource('Cozinheiros', 5);
 export const cozinhaQueue = new EntitySet<PedidoEntity>('CozinheirosQueue', EntitySetMode.FIFO);
 export const pedidosProntosQueue = new EntitySet<PedidoEntity>(
     'PedidosProntosQueue', EntitySetMode.FIFO);
@@ -35,19 +35,22 @@ export const pedidosProntosQueue = new EntitySet<PedidoEntity>(
 export const garcons = Array(3).fill(undefined).map(() => new GarcomEntity());
 
 scheduler.scheduleNow(new GeraChegadaClienteEvent());
-// scheduler.scheduleIn(new IntervaloCaixaEvent(atendentes1), moment.duration(10, 'seconds'));
-// scheduler.scheduleIn(new IntervaloCaixaEvent(atendentes2), moment.duration(30, 'seconds'));
-caixa1Queue.startLog(moment.duration(1, 'minute'), scheduler, 30);
-caixa2Queue.startLog(moment.duration(1, 'minute'), scheduler, 30);
-// scheduler.simulateBy(moment.duration(30, 'minutes'));
+// scheduler.scheduleIn(new IntervaloCaixaEvent(atendentes1), moment.duration(10, 'minutes'));
+// scheduler.scheduleIn(new IntervaloCaixaEvent(atendentes2), moment.duration(30, 'minutes'));
+caixa1Queue.startLog(moment.duration(10, MAIN_MODEL_UNIT), scheduler, 100);
+caixa2Queue.startLog(moment.duration(10, MAIN_MODEL_UNIT), scheduler, 100);
+// scheduler.simulateBy(moment.duration(1, 'hour'));
 scheduler.simulate();
 
-console.log('Simulation duration:', getSimulationDuration().asHours(), 'hours');
+console.log('-----');
+console.log('Simulation duration:', getSimulationDuration().asHours());
 console.log('Clientes count:', scheduler.getEntityTotalQuantityByName(GRUPO_CLIENTS_NAME));
 console.log('Pedidos count:', scheduler.getEntityTotalQuantityByName(PEDIDO_NAME));
-console.log('Clientes average', scheduler.averageTimeInModelByName(GRUPO_CLIENTS_NAME).asMinutes());
-console.log('Pedidos average', scheduler.averageTimeInModelByName(PEDIDO_NAME).asMinutes());
-console.log('Atendentes allocation rate:', atendentes1.allocationRate());
+console.log('Clientes average:', scheduler.averageTimeInModelByName(GRUPO_CLIENTS_NAME).asHours());
+console.log('Pedidos average:', scheduler.averageTimeInModelByName(PEDIDO_NAME).asHours());
+console.log('Atendentes 1 allocation rate:', atendentes1.allocationRate());
+console.log('Atendentes 2 allocation rate:', atendentes2.allocationRate());
+console.log('Cozinheiros allocation rate:', cozinheiros.allocationRate());
 console.log('Atendentes average allocation:', atendentes1.averageAllocation());
 console.log('Caixa 1 logs:', caixa1Queue.getLog());
 console.log('Caixa 2 logs:', caixa2Queue.getLog());

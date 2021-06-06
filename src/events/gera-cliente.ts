@@ -1,5 +1,5 @@
 import moment from 'moment';
-import {scheduler} from '..';
+import {MAIN_MODEL_UNIT, scheduler} from '..';
 import Event from '../api/event';
 import {randomExponential} from '../api/random';
 import GrupoClientesEntity, {GRUPO_CLIENTS_NAME} from '../entities/grupo-clientes';
@@ -11,11 +11,11 @@ export class GeraChegadaClienteEvent extends Event {
   }
 
   execute() {
-    if (scheduler.getEntityTotalQuantityByName(GRUPO_CLIENTS_NAME) < 545) {
+    if (scheduler.getEntityTotalQuantityByName(GRUPO_CLIENTS_NAME) < 100) {
       const cliente = new GrupoClientesEntity();
       scheduler.scheduleIn(new ChegadaClienteEvent(cliente),
-          moment.duration(randomExponential(3), 'minutes'));
-      scheduler.scheduleIn(new GeraChegadaClienteEvent(), moment.duration(30, 'seconds'));
+          moment.duration(randomExponential(3), MAIN_MODEL_UNIT));
+      scheduler.scheduleIn(new GeraChegadaClienteEvent(), moment.duration(30, MAIN_MODEL_UNIT));
     }
   }
 }

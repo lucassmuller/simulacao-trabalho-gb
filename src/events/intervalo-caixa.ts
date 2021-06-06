@@ -1,5 +1,5 @@
 import moment from 'moment';
-import {garcons, scheduler} from '..';
+import {garcons, MAIN_MODEL_UNIT, scheduler} from '..';
 import Event from '../api/event';
 import {randomUniform} from '../api/random';
 import Resource from '../api/resource';
@@ -18,12 +18,12 @@ export class IntervaloCaixaEvent extends Event {
       this.resource.allocate();
       garcomDisponivel.replaceCashier();
       scheduler.scheduleIn(new FimIntervaloCaixaEvent(garcomDisponivel, this.resource),
-          moment.duration(randomUniform(40, 60), 'minutes'));
+          moment.duration(randomUniform(40, 60), MAIN_MODEL_UNIT));
     }
 
     if (getSimulationDuration().asSeconds() < 100) {
       scheduler.scheduleIn(new IntervaloCaixaEvent(this.resource),
-          moment.duration(randomUniform(40, 60), 'minutes'));
+          moment.duration(randomUniform(40, 60), MAIN_MODEL_UNIT));
     }
   }
 }

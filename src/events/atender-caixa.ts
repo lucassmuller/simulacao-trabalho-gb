@@ -1,10 +1,10 @@
 import moment from 'moment';
-import {atendentes1, atendentes2, caixa1Queue, caixa2Queue, scheduler} from '..';
+import {atendentes1, atendentes2, caixa1Queue, caixa2Queue, MAIN_MODEL_UNIT, scheduler} from '..';
 import Event from '../api/event';
 import {randomNormal} from '../api/random';
 import {FinalizarCaixa1Event, FinalizarCaixa2Event} from './finalizar-caixa';
 
-const getCaixaDelay = () => moment.duration(randomNormal(8, 2), 'minutes');
+const getCaixaDelay = () => moment.duration(randomNormal(8, 2), MAIN_MODEL_UNIT);
 
 export class AtenderCaixa1Event extends Event {
   constructor() {

@@ -1,5 +1,5 @@
 import moment from 'moment';
-import {garcons, pedidosProntosQueue, scheduler} from '..';
+import {garcons, MAIN_MODEL_UNIT, pedidosProntosQueue, scheduler} from '..';
 import Event from '../api/event';
 import {randomUniform} from '../api/random';
 import PedidoEntregueEvent from './pedido-entregue';
@@ -17,7 +17,7 @@ export class PedidoProntoEvent extends Event {
       const proximoPedido = pedidosProntosQueue.remove()!;
       scheduler.scheduleIn(
           new PedidoEntregueEvent(proximoPedido, garcomDisponivel),
-          moment.duration(randomUniform(1, 5), 'minutes'));
+          moment.duration(randomUniform(1, 5), MAIN_MODEL_UNIT));
     }
   }
 }

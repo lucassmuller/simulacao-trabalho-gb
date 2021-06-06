@@ -1,5 +1,5 @@
 import moment from 'moment';
-import {cozinhaQueue, cozinheiros, scheduler} from '..';
+import {cozinhaQueue, cozinheiros, MAIN_MODEL_UNIT, scheduler} from '..';
 import Event from '../api/event';
 import {randomUniform} from '../api/random';
 import FinalizarPedidoEvent from './finalizar-pedido';
@@ -16,7 +16,7 @@ export class CozinharPedidoEvent extends Event {
 
       const proximoPedido = cozinhaQueue.remove()!;
       scheduler.scheduleIn(new FinalizarPedidoEvent(proximoPedido),
-          moment.duration(randomUniform(10, 30), 'minutes'));
+          moment.duration(randomUniform(10, 30), MAIN_MODEL_UNIT));
     }
   }
 }

@@ -1,5 +1,5 @@
 import moment from 'moment';
-import {scheduler} from '..';
+import {MAIN_MODEL_UNIT, scheduler} from '..';
 import Event from '../api/event';
 import {randomUniform} from '../api/random';
 import GrupoClientesEntity from '../entities/grupo-clientes';
@@ -12,7 +12,7 @@ export class ClienteComendoEvent extends Event {
 
   execute() {
     scheduler.scheduleIn(new SaidaClienteEvent(this.cliente),
-        moment.duration(randomUniform(5, 15), 'minutes'));
+        moment.duration(randomUniform(5, 15), MAIN_MODEL_UNIT));
   }
 }
 
