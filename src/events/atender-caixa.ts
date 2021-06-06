@@ -1,29 +1,39 @@
 import moment from 'moment';
-import {atendentes1, atendentes2, scheduler} from '..';
+import {atendentes1, atendentes2, caixa1Queue, caixa2Queue, scheduler} from '..';
 import Event from '../api/event';
-import GrupoClientesEntity from '../entities/grupo-clientes';
+import {randomNormal} from '../api/random';
 import {FinalizarCaixa1Event, FinalizarCaixa2Event} from './finalizar-caixa';
 
-const FINALIZAR_CAIXA_SCHEDULE = moment.duration(12, 'seconds');
+const getCaixaDelay = () => moment.duration(randomNormal(8, 2), 'minutes');
 
 export class AtenderCaixa1Event extends Event {
-  constructor(private cliente: GrupoClientesEntity) {
+  constructor() {
     super('AtenderCaixa1Event');
   }
 
   execute() {
-    atendentes1.allocate();
-    scheduler.scheduleIn(new FinalizarCaixa1Event(this.cliente), FINALIZAR_CAIXA_SCHEDULE);
+    if (caixa1Queue.isNotEmpty() && atendentes1.isAvailable()) {
+      console.log('Atendendo cliente na fila 1:', caixa1Queue.getSize());
+      atendentes1.allocate();
+
+      const proximoCliente = caixa1Queue.remove()!;
+      scheduler.scheduleIn(new FinalizarCaixa1Event(proximoCliente), getCaixaDelay());
+    }
   }
 }
 
 export class AtenderCaixa2Event extends Event {
-  constructor(private cliente: GrupoClientesEntity) {
+  constructor() {
     super('AtenderCaixa2Event');
   }
 
   execute() {
-    atendentes2.allocate();
-    scheduler.scheduleIn(new FinalizarCaixa2Event(this.cliente), FINALIZAR_CAIXA_SCHEDULE);
+    if (caixa2Queue.isNotEmpty() && atendentes2.isAvailable()) {
+      console.log('Atendendo cliente na fila 2:', caixa2Queue.getSize());
+      atendentes2.allocate();
+
+      const proximoCliente = caixa2Queue.remove()!;
+      scheduler.scheduleIn(new FinalizarCaixa2Event(proximoCliente), getCaixaDelay());
+    }
   }
 }
