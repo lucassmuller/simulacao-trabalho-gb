@@ -1,4 +1,4 @@
-import {pedidosProntosQueue, scheduler} from '..';
+import {scheduler} from '..';
 import Event from '../api/event';
 import GarcomEntity from '../entities/garcom';
 import PedidoEntity from '../entities/pedido';
@@ -17,14 +17,7 @@ export class PedidoEntregueEvent extends Event {
     this.garcom.orderDelivered();
     this.pedido.destroy();
     scheduler.scheduleNow(new ClienteComendoEvent(this.pedido.getCliente()));
-
-    if (pedidosProntosQueue.isNotEmpty()) {
-      console.log('Atendendo pedido na fila:', pedidosProntosQueue.getSize());
-      const proximoPedido = pedidosProntosQueue.remove();
-      if (proximoPedido) {
-        scheduler.scheduleNow(new PedidoProntoEvent(proximoPedido));
-      }
-    }
+    scheduler.scheduleNow(new PedidoProntoEvent());
   }
 }
 

@@ -9,7 +9,7 @@ export class ChegadaClienteEvent extends Event {
   }
 
   execute() {
-    if (caixa1Queue.getSize() < caixa2Queue.getSize()) {
+    if (caixa1Queue.getSize() <= caixa2Queue.getSize()) {
       caixa1Queue.insert(this.cliente);
       scheduler.scheduleNow(new AtenderCaixa1Event());
     } else {

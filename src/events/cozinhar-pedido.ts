@@ -2,21 +2,21 @@ import moment from 'moment';
 import {cozinhaQueue, cozinheiros, scheduler} from '..';
 import Event from '../api/event';
 import {randomUniform} from '../api/random';
-import PedidoEntity from '../entities/pedido';
 import FinalizarPedidoEvent from './finalizar-pedido';
 
 export class CozinharPedidoEvent extends Event {
-  constructor(private pedido: PedidoEntity) {
+  constructor() {
     super('CozinharPedidoEvent');
   }
 
   execute() {
-    if (cozinheiros.isAvailable()) {
+    if (cozinhaQueue.isNotEmpty() && cozinheiros.isAvailable()) {
+      console.log('Atendendo pedido na fila:', cozinhaQueue.getSize());
       cozinheiros.allocate();
-      scheduler.scheduleIn(new FinalizarPedidoEvent(this.pedido),
-          moment.duration(randomUniform(20, 40), 'minutes'));
-    } else {
-      cozinhaQueue.insert(this.pedido);
+
+      const proximoPedido = cozinhaQueue.remove()!;
+      scheduler.scheduleIn(new FinalizarPedidoEvent(proximoPedido),
+          moment.duration(randomUniform(10, 30), 'minutes'));
     }
   }
 }

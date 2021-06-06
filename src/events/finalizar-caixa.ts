@@ -1,4 +1,4 @@
-import {atendentes1, atendentes2, scheduler} from '..';
+import {atendentes1, atendentes2, cozinhaQueue, scheduler} from '..';
 import Event from '../api/event';
 import Resource from '../api/resource';
 import GrupoClientesEntity from '../entities/grupo-clientes';
@@ -20,8 +20,8 @@ abstract class FinalizarCaixaEvent extends Event {
     scheduler.scheduleNow(new RotearMesaEvent(this.cliente));
 
     const pedido = new PedidoEntity(this.cliente);
-    scheduler.scheduleNow(new CozinharPedidoEvent(pedido));
-    scheduler.scheduleNow(new RotearMesaEvent(this.cliente));
+    cozinhaQueue.insert(pedido);
+    scheduler.scheduleNow(new CozinharPedidoEvent());
   }
 }
 
