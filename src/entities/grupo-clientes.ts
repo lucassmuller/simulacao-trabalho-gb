@@ -1,5 +1,6 @@
 import {scheduler} from '..';
 import Entity from '../api/entity';
+import {randomUniform} from '../api/random';
 
 export const GRUPO_CLIENTS_NAME = 'GrupoClientesEntity';
 
@@ -16,6 +17,6 @@ export class GrupoClientesEntity extends Entity {
   }
 }
 
-const getRandomSize = () => Math.floor(Math.random() * 4) + 1;
+const getRandomSize = () => Math.floor(randomUniform(1, 5));
 
 export default GrupoClientesEntity;
