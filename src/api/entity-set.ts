@@ -105,6 +105,7 @@ export class EntitySet<T extends Entity = Entity> {
         }
 
         if (logLimit > 0 && entitySet.logs.length >= logLimit) {
+          entitySet.keepLogging = false;
           return;
         }
 

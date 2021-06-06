@@ -1,6 +1,7 @@
 import moment from 'moment';
 import {scheduler} from '..';
 import Event from '../api/event';
+import {randomUniform} from '../api/random';
 import GarcomEntity from '../entities/garcom';
 
 export class LimparMesaEvent extends Event {
@@ -12,7 +13,7 @@ export class LimparMesaEvent extends Event {
     if (this.garcom.cleanTable()) {
       scheduler.scheduleIn(
           new MesaLimpaEvent(this.garcom, this.nextEvent),
-          moment.duration(5, 'seconds'));
+          moment.duration(randomUniform(2, 5), 'minutes'));
     } else {
       throw new Error('Garçom não disponível!');
     }
