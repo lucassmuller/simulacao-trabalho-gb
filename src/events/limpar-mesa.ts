@@ -2,7 +2,7 @@ import moment from 'moment';
 import {scheduler} from '..';
 import Event from '../api/event';
 import {randomUniform} from '../api/random';
-import GarcomEntity from '../entities/garcom';
+import GarcomEntity, {GarcomState} from '../entities/garcom';
 
 export class LimparMesaEvent extends Event {
   constructor(private garcom: GarcomEntity, private nextEvent: Event) {
@@ -10,12 +10,10 @@ export class LimparMesaEvent extends Event {
   }
 
   execute() {
-    if (this.garcom.cleanTable()) {
+    if (this.garcom.getCurrentState() === GarcomState.CLEANING_TABLE) {
       scheduler.scheduleIn(
           new MesaLimpaEvent(this.garcom, this.nextEvent),
           moment.duration(randomUniform(2, 5), 'minutes'));
-    } else {
-      throw new Error('Garçom não disponível!');
     }
   }
 }

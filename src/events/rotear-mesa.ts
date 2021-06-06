@@ -1,4 +1,4 @@
-import {scheduler} from '..';
+import {bancosBalcaoQueue, mesas2Queue, mesas4Queue, scheduler} from '..';
 import Event from '../api/event';
 import GrupoClientesEntity from '../entities/grupo-clientes';
 import {EntrarFilaBalcaoEvent, EntrarFilaMesa2Event, EntrarFilaMesa4Event} from './fila-mesa';
@@ -10,11 +10,14 @@ export class RotearMesaEvent extends Event {
 
   execute() {
     if (this.cliente.getSize() === 1) {
-      scheduler.scheduleNow(new EntrarFilaBalcaoEvent(this.cliente));
+      bancosBalcaoQueue.insert(this.cliente);
+      scheduler.scheduleNow(new EntrarFilaBalcaoEvent());
     } else if (this.cliente.getSize() === 2) {
-      scheduler.scheduleNow(new EntrarFilaMesa2Event(this.cliente));
+      mesas2Queue.insert(this.cliente);
+      scheduler.scheduleNow(new EntrarFilaMesa2Event());
     } else if (this.cliente.getSize() > 2) {
-      scheduler.scheduleNow(new EntrarFilaMesa4Event(this.cliente));
+      mesas4Queue.insert(this.cliente);
+      scheduler.scheduleNow(new EntrarFilaMesa4Event());
     }
   }
 }

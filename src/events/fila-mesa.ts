@@ -1,60 +1,57 @@
 import {bancosBalcao, bancosBalcaoQueue, garcons, mesas2,
   mesas2Queue, mesas4, mesas4Queue, scheduler} from '..';
+import EntitySet from '../api/entity-set';
 import Event from '../api/event';
+import Resource from '../api/resource';
 import GrupoClientesEntity from '../entities/grupo-clientes';
-import {EntrarBalcaoEvent, EntrarMesa2Event, EntrarMesa4Event} from './entrar-mesa';
 import {LimparMesaEvent} from './limpar-mesa';
 
-export class EntrarFilaBalcaoEvent extends Event {
-  constructor(private cliente: GrupoClientesEntity) {
-    super('EntrarFilaBalcaoEvent');
+abstract class EntrarFilaEvent extends Event {
+  constructor(name: string,
+    private queue: EntitySet<GrupoClientesEntity>,
+    private resource: Resource,
+  ) {
+    super(name);
   }
 
   execute() {
     const garcomDisponivel = garcons.find((garcom) => garcom.isAvailable());
 
-    if (bancosBalcao.isAvailable() && garcomDisponivel) {
+    if (this.queue.isNotEmpty() && this.resource.isAvailable() && garcomDisponivel) {
+      garcomDisponivel.cleanTable();
+      const proximoCliente = this.queue.remove()!;
       scheduler.scheduleNow(new LimparMesaEvent(
           garcomDisponivel,
-          new EntrarBalcaoEvent(this.cliente)));
-    } else {
-      bancosBalcaoQueue.insert(this.cliente);
+          this.getAllocateEvent(proximoCliente)));
     }
+  }
+
+  private getAllocateEvent(cliente: GrupoClientesEntity) {
+    const resource = this.resource;
+    return new class extends Event {
+      execute() {
+        resource.allocate();
+        console.log('Cliente', cliente.getId(), 'sentou na mesa.');
+        // Cliente espera o pedido, que chega por outro evento
+      }
+    }('AllocateMesaEvent');
   }
 }
 
-export class EntrarFilaMesa2Event extends Event {
-  constructor(private cliente: GrupoClientesEntity) {
-    super('EntrarFilaMesa2Event');
-  }
-
-  execute() {
-    const garcomDisponivel = garcons.find((garcom) => garcom.isAvailable());
-
-    if (mesas2.isAvailable() && garcomDisponivel) {
-      scheduler.scheduleNow(new LimparMesaEvent(
-          garcomDisponivel,
-          new EntrarMesa2Event(this.cliente)));
-    } else {
-      mesas2Queue.insert(this.cliente);
-    }
+export class EntrarFilaBalcaoEvent extends EntrarFilaEvent {
+  constructor() {
+    super('EntrarFilaBalcaoEvent', bancosBalcaoQueue, bancosBalcao);
   }
 }
 
-export class EntrarFilaMesa4Event extends Event {
-  constructor(private cliente: GrupoClientesEntity) {
-    super('EntrarFilaMesa4Event');
+export class EntrarFilaMesa2Event extends EntrarFilaEvent {
+  constructor() {
+    super('EntrarFilaMesa2Event', mesas2Queue, mesas2);
   }
+}
 
-  execute() {
-    const garcomDisponivel = garcons.find((garcom) => garcom.isAvailable());
-
-    if (mesas4.isAvailable() && garcomDisponivel) {
-      scheduler.scheduleNow(new LimparMesaEvent(
-          garcomDisponivel,
-          new EntrarMesa4Event(this.cliente)));
-    } else {
-      mesas4Queue.insert(this.cliente);
-    }
+export class EntrarFilaMesa4Event extends EntrarFilaEvent {
+  constructor() {
+    super('EntrarFilaMesa4Event', mesas4Queue, mesas4);
   }
 }
