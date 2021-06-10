@@ -13,9 +13,9 @@ export class GeraChegadaClienteEvent extends Event {
   execute() {
     if (scheduler.getEntityTotalQuantityByName(GRUPO_CLIENTS_NAME) < 100) {
       const cliente = new GrupoClientesEntity();
-      scheduler.scheduleIn(new ChegadaClienteEvent(cliente),
+      scheduler.scheduleNow(new ChegadaClienteEvent(cliente));
+      scheduler.scheduleIn(new GeraChegadaClienteEvent(),
           moment.duration(randomExponential(3), MAIN_MODEL_UNIT));
-      scheduler.scheduleIn(new GeraChegadaClienteEvent(), moment.duration(30, MAIN_MODEL_UNIT));
     }
   }
 }
