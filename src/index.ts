@@ -35,8 +35,7 @@ export const pedidosProntosQueue = new EntitySet<PedidoEntity>(
 export const garcons = Array(3).fill(undefined).map(() => new GarcomEntity());
 
 scheduler.scheduleNow(new GeraChegadaClienteEvent());
-// scheduler.scheduleIn(new IntervaloCaixaEvent(atendentes1), moment.duration(10, 'minutes'));
-// scheduler.scheduleIn(new IntervaloCaixaEvent(atendentes2), moment.duration(30, 'minutes'));
+// scheduler.scheduleIn(new IntervaloCaixaEvent(), moment.duration(10, MAIN_MODEL_UNIT));
 caixa1Queue.startLog(moment.duration(10, MAIN_MODEL_UNIT), scheduler, 10);
 caixa2Queue.startLog(moment.duration(10, MAIN_MODEL_UNIT), scheduler, 10);
 bancosBalcaoQueue.startLog(moment.duration(30, MAIN_MODEL_UNIT), scheduler, 10);
