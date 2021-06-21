@@ -84,11 +84,6 @@ export class EntitySet<T extends Entity = Entity> {
     return this.set.slice(index, 1)[0];
   }
 
-  // TODOs:
-  averageSize = () => null
-  averageTimeInSet = () => null
-  maxTimeInSet = () => null
-
   getLog = () => this.logs;
 
   startLog(timeGap: moment.Duration, scheduler: Scheduler, logLimit = 0) {
